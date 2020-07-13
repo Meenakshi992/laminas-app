@@ -1,0 +1,125 @@
+
+<?php
+$title = 'My albums in Laminas';
+$this->headTitle($title);
+?>
+<h1><?= $this->escapeHtml($title) ?></h1>
+<p>
+    <a href="<?= $this->url('album', ['action' => 'add']) ?>">Add new album</a>
+</p>
+
+<table class="table">
+<tr>
+    <th>Title</th>
+    <th>Artist</th>
+    <th>&nbsp;</th>
+</tr>
+
+<?php foreach ($albums as $album) : ?>
+    <tr>
+        <td><?= $this->escapeHtml($album->title) ?></td>
+        <td><?= $this->escapeHtml($album->artist) ?></td>
+        <td>
+            <a href="<?= $this->url('album', ['action' => 'edit', 'id' => $album->id]) ?>">Edit</a>
+            <a href="<?= $this->url('album', ['action' => 'delete', 'id' => $album->id]) ?>">Delete</a>
+        </td>
+    </tr>
+    
+<?php 
+$albumarray[] = $album; 
+endforeach; ?>
+
+</table>
+
+
+      
+      <script type = "text/javascript">
+
+        var album_json = '<?php echo json_encode($albumarray); ?>';
+        var jsonstr_obj_album = JSON.stringify(album_json );
+
+        
+
+         // Creation of data model
+         Ext.define('PersonDataModel', {
+            extend: 'Ext.data.Model',
+            fields: [
+               {name: 'artist', mapping : 'artist'},
+               {name: 'title', mapping : 'title'}
+            ]
+         });
+         
+         Ext.onReady(function() {
+            // Store data
+            var myData = JSON.parse(jsonstr_obj_album );
+        
+            // Creation of first grid store
+            var gridStore = Ext.create('Ext.data.Store', {
+               model: 'PersonDataModel',
+               data:  JSON.parse(myData)
+            });
+            
+           var editLink = "<?php echo $this->url('album', ['action' => 'edit', 'id' => '']); ?>";
+
+           var deleteLink = "<?= $this->url('album', ['action' => 'delete', 'id' => '']) ?>";
+
+
+            // Creation of first grid
+            Ext.create('Ext.grid.Panel', {
+               id                : 'gridId',
+               store             : gridStore,
+               stripeRows        : true,
+               title             : 'Person Grid',  // Title for the grid
+               renderTo          :'gridDiv',         // Div id where the grid has to be rendered
+               width             : 600,
+               collapsible       : true,             // property to collapse grid
+               enableColumnMove  :true,              // property which allows column to move to different position by dragging that column.
+               enableColumnResize:true,        // property which allows to resize column run time.
+               
+               columns           :
+               [
+                { 
+                  header: "ID",
+                  dataIndex: 'id',  
+                  id : 'artist_id',    
+                  flex:  1,        // property defines the amount of space this column is going to take in the grid container with respect to all.  
+                  sortable: true,  // property to sort grid column data. 
+                  hideable: true   // property which allows column to be hidden run time on user request.
+               },
+                { 
+                  header: "Artist Name",
+                  dataIndex: 'artist',  
+                  id : 'artist',    
+                  flex:  1,        // property defines the amount of space this column is going to take in the grid container with respect to all.  
+                  sortable: true,  // property to sort grid column data. 
+                  hideable: true   // property which allows column to be hidden run time on user request.
+               },{
+                  header: "title", 
+                  dataIndex: 'title',
+                  flex: .5, 
+                  sortable: true,
+                  hideable: false   // this column will not be available to be hidden.
+               },{
+                    text: 'Action',
+                    dataIndex: 'id',
+                    renderer: function (val, meta, record) {
+                        return '<a href="' + editLink + val + '"> Edit </a> | <a href="' + deleteLink + val + '"> Delete </a>';
+                    }
+                }
+               ]
+        
+                
+            });
+         });
+
+      </script>
+
+   
+   <p>OR</p> 
+  <h1>My albums in ext.js</h1>
+  
+  <div id = "gridDiv"></div>
+
+
+
+
